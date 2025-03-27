@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>账户管理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#4E81EE',
+secondary: '#52C41A'
+},
+borderRadius: {
+'none': '0px',
+'sm': '2px',
+DEFAULT: '4px',
+'md': '8px',
+'lg': '12px',
+'xl': '16px',
+'2xl': '20px',
+'3xl': '24px',
+'full': '9999px',
+'button': '4px'
+}
+}
+}
+}
+</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+body {
+min-height: 1024px;
+background-color: #f5f5f5;
+}
+.container {
+width: 1440px;
+margin: 0 auto;
+padding: 24px;
+}
+.filter-item {
+position: relative;
+margin-bottom: 16px;
+}
+.filter-item select,
+.filter-item input {
+width: 100%;
+height: 32px;
+padding: 4px 11px;
+background-color: white;
+border: 1px solid #d9d9d9;
+border-radius: 4px;
+font-size: 14px;
+}
+.filter-item select:focus,
+.filter-item input:focus {
+outline: none;
+border-color: #4E81EE;
+}
+.table th {
+background-color: #fafafa;
+font-weight: 500;
+}
+.table td, .table th {
+padding: 16px;
+text-align: left;
+border-bottom: 1px solid #f0f0f0;
+}
+.status-tag {
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 12px;
+}
+.status-active {
+color: #52C41A;
+background-color: #f6ffed;
+border: 1px solid #b7eb8f;
+}
+.status-inactive {
+color: #ff4d4f;
+background-color: #fff2f0;
+border: 1px solid #ffccc7;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="bg-white p-6 rounded-lg mb-6">
+<div class="grid grid-cols-4 gap-4">
+<div class="filter-item">
+<label class="block text-sm mb-1">所属团队</label>
+<select>
+<option>全部</option>
+<option>测试团队</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">账户名</label>
+<input type="text" placeholder="请输入">
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">角色</label>
+<select>
+<option>全部</option>
+<option>催收主管</option>
+<option>催收专员</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">账户状态</label>
+<select>
+<option>全部</option>
+<option>启用</option>
+<option>停用</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">分销状态</label>
+<select>
+<option>全部</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">催收阶段</label>
+<select>
+<option>全部</option>
+<option>M1</option>
+<option>M2</option>
+<option>M3</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">登录设备</label>
+<select>
+<option>全部</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="block text-sm mb-1">人脸绑定数量</label>
+<select>
+<option>全部</option>
+<option>0</option>
+<option>1</option>
+<option>2</option>
+</select>
+</div>
+</div>
+<div class="flex justify-end space-x-2 mt-4">
+<button class="px-4 py-2 border border-gray-300 text-gray-600 rounded-button hover:bg-gray-50">重置</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button hover:bg-blue-600">查询</button>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg">
+<div class="flex justify-between items-center mb-4">
+<div class="space-x-2">
+<button class="px-4 py-2 bg-primary text-white rounded-button hover:bg-blue-600">
+<i class="fas fa-plus mr-1"></i>新增账户
+</button>
+<button class="px-4 py-2 border border-gray-300 text-gray-600 rounded-button hover:bg-gray-50">
+<i class="fas fa-upload mr-1"></i>批量创建
+</button>
+</div>
+<div class="space-x-2">
+<button class="px-4 py-2 border border-gray-300 text-gray-600 rounded-button hover:bg-gray-50">
+<i class="fas fa-cog mr-1"></i>批量操作
+</button>
+<button class="px-4 py-2 border border-gray-300 text-gray-600 rounded-button hover:bg-gray-50">
+<i class="fas fa-download mr-1"></i>导出
+</button>
+</div>
+</div>
+<table class="table w-full">
+<thead>
+<tr>
+<th width="40">
+<input type="checkbox" class="rounded">
+</th>
+<th>昵称</th>
+<th>账户名</th>
+<th>数字账户</th>
+<th>所属阶段</th>
+<th>所属团队</th>
+<th>角色名称</th>
+<th>账户状态</th>
+<th>人脸绑定数量</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>陈美玲</td>
+<td>chenml</td>
+<td>10081</td>
+<td>M1</td>
+<td>北区团队</td>
+<td>催收主管</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>2</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>赵天成</td>
+<td>zhaotc</td>
+<td>10082</td>
+<td>M2</td>
+<td>南区团队</td>
+<td>催收专员</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>1</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>林佳慧</td>
+<td>linjh</td>
+<td>10083</td>
+<td>M3</td>
+<td>东区团队</td>
+<td>质检专员</td>
+<td><span class="status-tag status-inactive">停用</span></td>
+<td>0</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-green-500 hover:text-green-600">
+<i class="fas fa-check-circle mr-1"></i>启用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>吴雨轩</td>
+<td>wuyx</td>
+<td>10084</td>
+<td>M1</td>
+<td>西区团队</td>
+<td>催收主管</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>2</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>黄子豪</td>
+<td>huangzh</td>
+<td>10085</td>
+<td>M2</td>
+<td>北区团队</td>
+<td>催收专员</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>1</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>郑雅文</td>
+<td>zhengyw</td>
+<td>10086</td>
+<td>M3</td>
+<td>南区团队</td>
+<td>质检专员</td>
+<td><span class="status-tag status-inactive">停用</span></td>
+<td>0</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-green-500 hover:text-green-600">
+<i class="fas fa-check-circle mr-1"></i>启用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>孙志远</td>
+<td>sunzy</td>
+<td>10087</td>
+<td>M1</td>
+<td>东区团队</td>
+<td>催收主管</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>2</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>杨梓涵</td>
+<td>yangzh</td>
+<td>10088</td>
+<td>M2</td>
+<td>西区团队</td>
+<td>催收专员</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>1</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>朱晓莉</td>
+<td>zhuxl</td>
+<td>10089</td>
+<td>M3</td>
+<td>北区团队</td>
+<td>质检专员</td>
+<td><span class="status-tag status-inactive">停用</span></td>
+<td>0</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-green-500 hover:text-green-600">
+<i class="fas fa-check-circle mr-1"></i>启用
+</button>
+</td>
+</tr>
+<tr>
+<td><input type="checkbox" class="rounded"></td>
+<td>马浩然</td>
+<td>mahr</td>
+<td>10090</td>
+<td>M1</td>
+<td>南区团队</td>
+<td>催收主管</td>
+<td><span class="status-tag status-active">启用</span></td>
+<td>2</td>
+<td>
+<button class="text-primary hover:text-blue-600 mr-3">
+<i class="fas fa-edit mr-1"></i>编辑
+</button>
+<button class="text-red-500 hover:text-red-600">
+<i class="fas fa-ban mr-1"></i>停用
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="flex justify-between items-center mt-4">
+<div class="text-sm text-gray-500">
+共 10 条记录
+</div>
+<div class="flex space-x-1">
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">
+<i class="fas fa-chevron-left"></i>
+</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded bg-primary text-white">1</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">2</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">3</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">4</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">5</button>
+<button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50 text-gray-600">
+<i class="fas fa-chevron-right"></i>
+</button>
+</div>
+</div>
+</div>
+</body>
+</html>

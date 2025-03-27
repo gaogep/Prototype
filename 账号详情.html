@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编辑账户</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#3B82F6',
+secondary: '#64748B'
+},
+borderRadius: {
+'none': '0px',
+'sm': '2px',
+DEFAULT: '4px',
+'md': '8px',
+'lg': '12px',
+'xl': '16px',
+'2xl': '20px',
+'3xl': '24px',
+'full': '9999px',
+'button': '4px'
+}
+}
+}
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.modal {
+background: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+max-height: 90vh;
+overflow-y: auto;
+}
+.form-group {
+margin-bottom: 20px;
+}
+.required::before {
+content: '*';
+color: #ef4444;
+margin-right: 4px;
+}
+.form-input {
+width: 100%;
+padding: 8px 12px;
+border: 1px solid #e5e7eb;
+border-radius: 4px;
+background-color: #f9fafb;
+}
+.form-input:focus {
+outline: none;
+border-color: #3B82F6;
+ring: 2px;
+ring-color: #3B82F6;
+}
+.photo-upload {
+width: 120px;
+height: 120px;
+margin: 0 auto 16px;
+border-radius: 50%;
+overflow: hidden;
+background: #f3f4f6;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.photo-upload img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="modal fixed inset-0 flex items-center justify-center">
+<div class="modal-content bg-white rounded-lg shadow-xl w-[600px] p-6">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-xl font-medium">编辑账户</h2>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<form>
+<div class="flex justify-center gap-4 mb-6">
+<div class="relative">
+<div class="photo-upload">
+<img src="https://ai-public.mastergo.com/ai/img_res/87cfdd45ac01b79adc9889e4c551b1cd.jpg" alt="用户照片1">
+<button onclick="if(confirm('确定要删除该活体照片吗？')) console.log('删除照片')" class="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full text-white flex items-center justify-center hover:bg-red-600 shadow-lg">
+<i class="fas fa-times text-xs"></i>
+</button>
+</div>
+</div>
+<div class="relative">
+<div class="photo-upload">
+<div class="w-full h-full flex items-center justify-center bg-gray-100">
+<i class="fas fa-user text-4xl text-gray-400"></i>
+</div>
+</div>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2 required">昵称</label>
+<input type="text" class="form-input" value="Apollo-H2">
+</div>
+<div class="form-group">
+<label class="block mb-2 required">账户名</label>
+<input type="text" class="form-input" value="Apollo-H2">
+</div>
+<div class="form-group">
+<label class="block mb-2">数字账户</label>
+<input type="text" class="form-input" value="19421969" disabled>
+</div>
+<div class="form-group">
+<label class="block mb-2 required">所属团队</label>
+<div class="relative">
+<select class="form-input appearance-none">
+<option>apollo</option>
+</select>
+<i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2 required">角色</label>
+<div class="relative">
+<select class="form-input appearance-none">
+<option>催收坐席</option>
+</select>
+<i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2">是否重置密码</label>
+<div class="flex gap-6">
+<label class="flex items-center">
+<input type="radio" name="reset" class="mr-2">
+<span>是</span>
+</label>
+<label class="flex items-center">
+<input type="radio" name="reset" class="mr-2" checked>
+<span>否</span>
+</label>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2">登录方式</label>
+<div class="flex gap-6">
+<label class="flex items-center">
+<input type="radio" name="loginType" class="mr-2" checked onclick="document.getElementById('faceBindCount').style.display='none'">
+<span>密码登录</span>
+</label>
+<label class="flex items-center">
+<input type="radio" name="loginType" class="mr-2" onclick="document.getElementById('faceBindCount').style.display='block'">
+<span>密码+人脸识别登录</span>
+</label>
+</div>
+</div>
+<div id="faceBindCount" class="form-group" style="display:none">
+<label class="block mb-2">人脸绑定数量</label>
+<div class="flex gap-6">
+<label class="flex items-center">
+<input type="radio" name="faceCount" class="mr-2" checked>
+<span>1张</span>
+</label>
+<label class="flex items-center">
+<input type="radio" name="faceCount" class="mr-2">
+<span>2张</span>
+</label>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2 required">所属任务</label>
+<div class="relative">
+<select class="form-input appearance-none">
+<option>H2</option>
+</select>
+<i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+</div>
+</div>
+<div class="form-group">
+<label class="block mb-2">infinity账户</label>
+<input type="text" class="form-input">
+</div>
+<div class="form-group">
+<label class="block mb-2">STI</label>
+<input type="text" class="form-input">
+</div>
+<div class="flex justify-end gap-4 mt-8">
+<button type="button" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-button hover:bg-gray-50">取消</button>
+<button type="submit" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-blue-600">确定</button>
+</div>
+</form>
+</div>
+</div>
+</body>
+</html>
