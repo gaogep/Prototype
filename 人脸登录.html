@@ -107,6 +107,7 @@ margin: 0;
 </div>
 <p class="text-center text-gray-600 mb-4">请将面部对准框内，保持不动</p>
 <div id="recognitionStatus" class="text-center text-sm"></div>
+<button onclick="simulateFaceRecognition()" class="w-full bg-primary text-white py-3 mt-4 !rounded-button hover:bg-primary/90 transition-colors whitespace-nowrap">开始识别</button>
 </div>
 </div>
 <!-- 首次登录弹窗 -->
@@ -125,7 +126,7 @@ margin: 0;
 <script>
 function showFaceRecognition() {
 document.getElementById('faceModal').style.display = 'flex';
-simulateFaceRecognition();
+document.getElementById('recognitionStatus').innerHTML = '';
 }
 function hideFaceRecognition() {
 document.getElementById('faceModal').style.display = 'none';
