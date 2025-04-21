@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人脸管理</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#4F81EE',
+secondary: '#10B981'
+},
+borderRadius: {
+'none': '0px',
+'sm': '2px',
+DEFAULT: '4px',
+'md': '8px',
+'lg': '12px',
+'xl': '16px',
+'2xl': '20px',
+'3xl': '24px',
+'full': '9999px',
+'button': '4px'
+}
+}
+}
+}
+</script>
+<style>
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.face-preview {
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 1000;
+}
+.face-preview.active {
+display: block;
+}
+.face-preview img {
+max-height: 80vh;
+cursor: pointer;
+}
+.face-preview-backdrop {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.5);
+z-index: 999;
+cursor: pointer;
+}
+.face-preview-backdrop.active {
+display: block;
+}
+.grid-cols-2 img {
+cursor: pointer;
+}
+</style>
+</head>
+<body class="min-h-[1024px] bg-gray-50">
+<div class="max-w-[1440px] mx-auto px-8 py-6">
+<div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+<div class="flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap" onclick="toggleDropdown('merchantDropdown')">
+<i class="fas fa-store mr-2 text-gray-500"></i>
+商户
+<i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+</button>
+<div id="merchantDropdown" class="hidden absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>商户A</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>商户B</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>商户C</span>
+</label>
+</div>
+</div>
+</div>
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap" onclick="toggleDropdown('teamDropdown')">
+<i class="fas fa-users mr-2 text-gray-500"></i>
+团队
+<i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+</button>
+<div id="teamDropdown" class="hidden absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>团队A</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>团队B</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>团队C</span>
+</label>
+</div>
+</div>
+</div>
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap" onclick="toggleDropdown('stageDropdown')">
+<i class="fas fa-layer-group mr-2 text-gray-500"></i>
+阶段
+<i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+</button>
+<div id="stageDropdown" class="hidden absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>M1</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>M2</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>M3</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="checkbox" class="rounded text-primary focus:ring-primary">
+<span>M4</span>
+</label>
+</div>
+</div>
+</div>
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap" onclick="toggleDropdown('faceDropdown')">
+<i class="fas fa-user-circle mr-2 text-gray-500"></i>
+人脸上限
+<i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+</button>
+<div id="faceDropdown" class="hidden absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="radio" name="faceLimit" class="text-primary focus:ring-primary">
+<span>单人脸账号</span>
+</label>
+</div>
+<div class="px-4 py-2 text-sm">
+<label class="flex items-center gap-2">
+<input type="radio" name="faceLimit" class="text-primary focus:ring-primary">
+<span>多人脸账号</span>
+</label>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="relative flex-1">
+<button class="w-full flex items-center justify-between px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50">
+<div class="flex items-center">
+<i class="fas fa-search mr-2 text-gray-400"></i>
+<span class="text-gray-400">选择账号</span>
+</div>
+<i class="fas fa-chevron-down text-gray-400"></i>
+</button>
+</div>
+<div class="relative flex-1">
+<input type="text" placeholder="搜索人员姓名" class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-button focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+<i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm flex items-center justify-center"></i>
+</div>
+</div>
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap" onclick="toggleDropdown('statusDropdown')">
+<i class="fas fa-filter mr-2 text-gray-500"></i>
+绑定状态
+<i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+</button>
+<div id="statusDropdown" class="hidden absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">全部</a>
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">已满额绑定</a>
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">部分绑定</a>
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">未绑定</a>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center px-4 py-2 text-sm text-white bg-primary rounded-button hover:bg-primary/80 whitespace-nowrap">
+查询
+</button>
+<button class="flex items-center px-4 py-2 text-sm border border-gray-300 rounded-button hover:bg-gray-50 whitespace-nowrap">
+重置
+</button>
+<div class="relative">
+<button class="flex items-center px-4 py-2 text-sm text-white bg-red-600 rounded-button hover:bg-red-700 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed" onclick="toggleBatchActions()" style="opacity: 1; cursor: pointer;" data-batch-actions>
+批量操作
+<i class="fas fa-chevron-down ml-2"></i>
+</button>
+<div id="batchActionsDropdown" class="hidden absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-10 py-2">
+<button onclick="showUnbindDialog()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+批量解绑
+</button>
+<button onclick="showFaceLimitDialog()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+人脸上限配置
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-700 flex items-center gap-4 mb-6">
+<span>已选择 <span id="selectedCount" class="font-medium">0</span> 个账号</span>
+<button id="clearSelection" class="text-primary hover:text-primary/80 hidden">清空选择</button>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_432</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+已满额绑定 (2/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group" data-face-id="1">
+<img src="https://ai-public.mastergo.com/ai/img_res/ea31217c58a5bc15bfaa5481e7687589.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>张伟明</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="张伟明">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button onclick="deleteFace(1)" class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative group" data-face-id="2">
+<img src="https://ai-public.mastergo.com/ai/img_res/67c799f84987f42c973701a75499310f.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>张伟明</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="张伟明">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button onclick="deleteFace(2)" class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_468</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+部分绑定 (1/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/a75747a2442611ee124d8424fe53c0a7.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>陈美玲</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="陈美玲">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" onchange="handleCheckboxChange(this)" disabled>
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_445</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+未绑定 (0/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_512</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+已满额绑定 (2/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/a8492d728b6152d85ff4debce0bca37b.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>林雨婷</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="林雨婷">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/6628082ef923d074a115cec1ad3ddb9c.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>林雨婷</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="林雨婷">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_523</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+部分绑定 (1/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/660efbd4b23074ce5d915f0713457a6f.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>王志强</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="王志强">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" onchange="handleCheckboxChange(this)" disabled>
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_536</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+未绑定 (0/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_548</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+已满额绑定 (2/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/4d2288aaf04c459574dd3770d308577c.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>李建国</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="李建国">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/1cee603063e8f3375433c369d94680df.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>李建国</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="李建国">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" onchange="handleCheckboxChange(this)">
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_559</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+部分绑定 (1/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative group">
+<img src="https://ai-public.mastergo.com/ai/img_res/61ec58c88088705f98ca5df47d5663d7.jpg" class="w-full h-40 rounded-lg object-cover">
+<div class="mt-2 text-sm text-gray-500 relative flex items-center gap-2">
+<span>刘晓华</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary" onclick="showNameEdit(this)">
+<i class="fas fa-pen"></i>
+</button>
+<div class="hidden absolute inset-0 flex items-center">
+<input type="text" class="flex-1 bg-white border border-primary rounded-button px-2 py-1 text-sm focus:outline-none" value="刘晓华">
+<button class="ml-1 text-primary hover:text-primary/80" onclick="saveNameEdit(this)">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+<button class="absolute top-2 right-2 w-8 h-8 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center !rounded-full">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-6 transition-all" data-card>
+<div class="flex items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<input type="checkbox" class="card-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" onchange="handleCheckboxChange(this)" disabled>
+<h3 class="text-base font-medium text-gray-900">Rk_coll_M1_562</h3>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+未绑定 (0/2)
+</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+<div class="relative bg-gray-100 rounded-lg h-40 flex items-center justify-center">
+<span class="text-sm text-gray-400">暂无人脸数据</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end mt-6 mb-8">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50 text-gray-400 cursor-not-allowed" disabled>
+<i class="fas fa-angle-left"></i>
+</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-primary bg-primary text-white rounded-button">1</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50">2</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50">3</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50">4</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50">5</button>
+<button class="w-8 h-8 flex items-center justify-center text-sm border border-gray-300 rounded-button hover:bg-gray-50">
+<i class="fas fa-angle-right"></i>
+</button>
+</div>
+</div>
+<div class="face-preview">
+<img src="" alt="人脸预览" class="max-w-xl rounded-lg">
+</div>
+<div class="face-preview-backdrop"></div>
+<script>
+function toggleDropdown(id) {
+const dropdown = document.getElementById(id);
+const allDropdowns = document.querySelectorAll('[id$="Dropdown"]');
+allDropdowns.forEach(d => {
+if (d.id !== id) {
+d.classList.add('hidden');
+}
+});
+dropdown.classList.toggle('hidden');
+}
+function toggleBatchActions() {
+const dropdown = document.getElementById('batchActionsDropdown');
+dropdown.classList.toggle('hidden');
+}
+document.addEventListener('click', function(event) {
+const batchActionsButton = event.target.closest('[data-batch-actions]');
+const batchActionsDropdown = document.getElementById('batchActionsDropdown');
+if (!batchActionsButton && !event.target.closest('#batchActionsDropdown')) {
+batchActionsDropdown.classList.add('hidden');
+}
+});
+document.addEventListener('click', function(event) {
+const dropdowns = document.querySelectorAll('[id$="Dropdown"]');
+const isDropdownButton = event.target.closest('button');
+if (!isDropdownButton) {
+dropdowns.forEach(dropdown => {
+dropdown.classList.add('hidden');
+});
+}
+});
+document.addEventListener('DOMContentLoaded', function() {
+const preview = document.querySelector('.face-preview');
+const previewImg = preview.querySelector('img');
+const backdrop = document.querySelector('.face-preview-backdrop');
+const batchDeleteBtn = document.querySelector('[data-batch-delete]');
+batchDeleteBtn.addEventListener('click', function() {
+const checkedCount = document.querySelectorAll('.card-checkbox:checked').length;
+const dialog = document.createElement('div');
+dialog.className = 'fixed inset-0 z-50 flex items-center justify-center';
+dialog.innerHTML = `
+<div class="fixed inset-0 bg-black/50"></div>
+<div class="relative bg-white rounded-lg p-6 w-[400px]">
+<h3 class="text-lg font-medium text-gray-900 mb-4">请选择解绑方式</h3>
+<div class="space-y-3">
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('all')">
+解绑全部人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('first')">
+解绑首张人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('second')">
+解绑第二张人脸
+</button>
+</div>
+<button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeUnbindDialog()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+`;
+document.body.appendChild(dialog);
+});
+function closeUnbindDialog() {
+const dialog = document.querySelector('.fixed.inset-0.z-50');
+if (dialog) {
+dialog.remove();
+}
+}
+function showUnbindDialog() {
+const dialog = document.createElement('div');
+dialog.className = 'fixed inset-0 z-50 flex items-center justify-center';
+dialog.innerHTML = `
+<div class="fixed inset-0 bg-black/50"></div>
+<div class="relative bg-white rounded-lg p-6 w-[400px]">
+<h3 class="text-lg font-medium text-gray-900 mb-4">请选择解绑方式</h3>
+<div class="space-y-3">
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('all')">
+解绑全部人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('first')">
+解绑首张人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('second')">
+解绑第二张人脸
+</button>
+</div>
+<button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeDialog()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+`;
+document.body.appendChild(dialog);
+}
+function showFaceLimitDialog() {
+const dialog = document.createElement('div');
+dialog.className = 'fixed inset-0 z-50 flex items-center justify-center';
+dialog.innerHTML = `
+<div class="fixed inset-0 bg-black/50"></div>
+<div class="relative bg-white rounded-lg p-6 w-[400px]">
+<h3 class="text-lg font-medium text-gray-900 mb-4">人脸上限配置</h3>
+<div class="space-y-3">
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('disable')">
+关闭人脸登录
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('one')">
+启用1张人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('two')">
+启用2张人脸
+</button>
+</div>
+<button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeDialog()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+`;
+document.body.appendChild(dialog);
+}
+function closeDialog() {
+const dialog = document.querySelector('.fixed.inset-0.z-50');
+if (dialog) {
+dialog.remove();
+}
+}
+function handleFaceLimit(type) {
+const checkedCards = document.querySelectorAll('.card-checkbox:checked');
+const limitMap = {
+'disable': '关闭人脸登录',
+'one': '启用1张人脸',
+'two': '启用2张人脸'
+};
+if(confirm(`确认为${checkedCards.length}个账号${limitMap[type]}吗？`)) {
+// 处理人脸上限配置的逻辑
+closeDialog();
+}
+}
+function handleUnbind(type) {
+const checkedCards = document.querySelectorAll('.card-checkbox:checked');
+const unbindMap = {
+'all': '全部',
+'first': '首张',
+'second': '第二张'
+};
+if(confirm(`确认${unbindMap[type]}解绑${checkedCards.length}个账号的人脸吗？`)) {
+checkedCards.forEach(checkbox => {
+const card = checkbox.closest('[data-card]');
+const images = card.querySelectorAll('.grid-cols-2 img');
+const statusBadge = card.querySelector('.rounded-full');
+if(type === 'all') {
+images.forEach(img => {
+const container = img.closest('.group');
+const emptyFace = createEmptyFace();
+container.parentNode.replaceChild(emptyFace, container);
+});
+updateStatus(statusBadge, 'none');
+} else if(type === 'first' && images[0]) {
+const container = images[0].closest('.group');
+const emptyFace = createEmptyFace();
+container.parentNode.replaceChild(emptyFace, container);
+updateStatus(statusBadge, images.length === 1 ? 'none' : 'partial');
+} else if(type === 'second' && images[1]) {
+const container = images[1].closest('.group');
+const emptyFace = createEmptyFace();
+container.parentNode.replaceChild(emptyFace, container);
+updateStatus(statusBadge, 'partial');
+}
+});
+clearAllSelections();
+closeDialog();
+}
+}
+function showUnbindDialog() {
+const dialog = document.createElement('div');
+dialog.className = 'fixed inset-0 z-50 flex items-center justify-center';
+dialog.innerHTML = `
+<div class="fixed inset-0 bg-black/50"></div>
+<div class="relative bg-white rounded-lg p-6 w-[400px]">
+<h3 class="text-lg font-medium text-gray-900 mb-4">请选择解绑方式</h3>
+<div class="space-y-3">
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('all')">
+解绑全部人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('first')">
+解绑首张人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleUnbind('second')">
+解绑第二张人脸
+</button>
+</div>
+<button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeDialog()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+`;
+document.body.appendChild(dialog);
+}
+function showFaceLimitDialog() {
+const dialog = document.createElement('div');
+dialog.className = 'fixed inset-0 z-50 flex items-center justify-center';
+dialog.innerHTML = `
+<div class="fixed inset-0 bg-black/50"></div>
+<div class="relative bg-white rounded-lg p-6 w-[400px]">
+<h3 class="text-lg font-medium text-gray-900 mb-4">人脸上限配置</h3>
+<div class="space-y-3">
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('disable')">
+关闭人脸登录
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('one')">
+启用1张人脸
+</button>
+<button class="w-full text-left px-4 py-2 text-sm rounded-button border border-gray-200 hover:bg-gray-50" onclick="handleFaceLimit('two')">
+启用2张人脸
+</button>
+</div>
+<button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeDialog()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+`;
+document.body.appendChild(dialog);
+}
+function closeDialog() {
+const dialog = document.querySelector('.fixed.inset-0.z-50');
+if (dialog) {
+dialog.remove();
+}
+}
+function createEmptyFace() {
+const emptyFace = document.createElement('div');
+emptyFace.className = 'relative bg-gray-100 rounded-lg h-40 flex items-center justify-center';
+emptyFace.innerHTML = '<span class="text-sm text-gray-400">暂无人脸数据</span>';
+return emptyFace;
+}
+function updateStatus(badge, type) {
+if(type === 'none') {
+badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+badge.textContent = '未绑定';
+} else if(type === 'partial') {
+badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+badge.textContent = '部分绑定';
+}
+}
+document.querySelectorAll('.grid-cols-2 img').forEach(img => {
+img.addEventListener('click', function() {
+previewImg.src = this.src;
+preview.classList.add('active');
+backdrop.classList.add('active');
+});
+});
+backdrop.addEventListener('click', function() {
+preview.classList.remove('active');
+backdrop.classList.remove('active');
+});
+});
+function handleCheckboxChange(checkbox) {
+const card = checkbox.closest('[data-card]');
+const batchDeleteBtn = document.querySelector('[data-batch-delete]');
+const clearSelectionBtn = document.getElementById('clearSelection');
+if (checkbox.checked) {
+card.classList.add('ring-2', 'ring-primary', 'ring-opacity-50');
+} else {
+card.classList.remove('ring-2', 'ring-primary', 'ring-opacity-50');
+}
+const checkedBoxes = document.querySelectorAll('.card-checkbox:checked');
+const checkedCount = checkedBoxes.length;
+batchDeleteBtn.disabled = checkedCount === 0;
+document.getElementById('selectedCount').textContent = checkedCount;
+clearSelectionBtn.style.display = checkedCount > 0 ? 'block' : 'none';
+}
+function showNameEdit(button) {
+const container = button.closest('div');
+const editContainer = container.querySelector('div');
+const nameSpan = container.querySelector('span');
+const input = editContainer.querySelector('input');
+nameSpan.style.display = 'none';
+button.style.display = 'none';
+editContainer.classList.remove('hidden');
+input.focus();
+}
+function saveNameEdit(button) {
+const container = button.closest('.relative');
+const editContainer = button.closest('div');
+const nameSpan = container.querySelector('span');
+const input = editContainer.querySelector('input');
+const editButton = container.querySelector('button:first-of-type');
+nameSpan.textContent = input.value;
+nameSpan.style.display = 'block';
+editButton.style.display = 'flex';
+editContainer.classList.add('hidden');
+}
+function clearAllSelections() {
+document.querySelectorAll('.card-checkbox:checked').forEach(checkbox => {
+checkbox.checked = false;
+const card = checkbox.closest('[data-card]');
+card.classList.remove('ring-2', 'ring-primary', 'ring-opacity-50');
+});
+const batchDeleteBtn = document.querySelector('[data-batch-delete]');
+batchDeleteBtn.disabled = true;
+document.getElementById('selectedCount').textContent = '0';
+document.getElementById('clearSelection').style.display = 'none';
+}
+document.getElementById('clearSelection').addEventListener('click', clearAllSelections);
+document.addEventListener('DOMContentLoaded', function() {
+// 为所有名字输入框添加事件监听
+document.querySelectorAll('.group input[type="text"]').forEach(input => {
+input.addEventListener('blur', function() {
+const span = this.parentElement.querySelector('span');
+span.textContent = this.value;
+});
+input.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+const span = this.parentElement.querySelector('span');
+span.textContent = this.value;
+this.blur();
+}
+});
+});
+});
+function deleteFace(faceId) {
+const faceContainer = document.querySelector(`[data-face-id="${faceId}"]`) || event.target.closest('.group');
+if (!faceContainer) return;
+const parentCard = faceContainer.closest('.bg-white');
+const statusBadge = parentCard.querySelector('.rounded-full');
+if (confirm('确认删除该人脸数据吗？')) {
+const emptyFace = document.createElement('div');
+emptyFace.className = 'relative bg-gray-100 rounded-lg h-40 flex items-center justify-center';
+emptyFace.innerHTML = '<span class="text-sm text-gray-400">暂无人脸数据</span>';
+faceContainer.parentNode.replaceChild(emptyFace, faceContainer);
+const remainingFaces = parentCard.querySelectorAll('img').length;
+if (remainingFaces === 0) {
+statusBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+statusBadge.textContent = '未绑定';
+} else {
+statusBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+statusBadge.textContent = '部分绑定';
+}
+}
+}
+</script>
+</body>
+</html>
